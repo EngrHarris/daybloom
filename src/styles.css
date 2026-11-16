@@ -18,6 +18,8 @@
   --m5: #f0764a;
   --shadow: 0 1px 2px rgba(60, 40, 30, 0.06), 0 6px 20px rgba(60, 40, 30, 0.05);
   --radius: 18px;
+  /* Strong ease-out: starts fast so the UI feels like it answers immediately. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   color-scheme: light;
 }
 
@@ -85,6 +87,73 @@ button {
   border: 0;
   background: none;
   padding: 0;
+  touch-action: manipulation; /* no double-tap zoom delay on rapid taps (sleep stepper) */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Every pressable thing answers the press, and state changes ease instead of snapping. */
+.btn,
+.chip,
+.tab,
+.dot,
+.mood,
+.cal-day,
+.icon-btn,
+.stepper button,
+.segmented button,
+.link-danger {
+  transition:
+    transform 140ms var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.btn:active:not(:disabled),
+.chip:not(.static):active,
+.tab:active,
+.mood:active,
+.segmented button:active {
+  transform: scale(0.97);
+}
+
+/* Small round targets need a deeper press to be visible at all. */
+.dot:active,
+.cal-day:active:not(:disabled),
+.icon-btn:active:not(:disabled),
+.stepper button:active {
+  transform: scale(0.92);
+}
+
+/* Hover only where there is a real pointer; touch screens fire hover on tap. */
+@media (hover: hover) and (pointer: fine) {
+  .chip:not(.static):not([aria-pressed='true']):hover,
+  .mood:not([aria-checked='true']):hover,
+  .cal-day:not([class*=' m']):not(:disabled):hover,
+  .icon-btn:not(:disabled):hover,
+  .stepper button:hover,
+  .btn.secondary:hover {
+    background: color-mix(in srgb, var(--text) 9%, var(--surface-2));
+  }
+
+  .btn:not(.secondary):not(.danger):not(:disabled):hover {
+    background: color-mix(in srgb, var(--text) 12%, var(--accent));
+  }
+
+  .tab:not([aria-current='page']):hover,
+  .segmented button:not([aria-checked='true']):hover {
+    color: var(--text);
+  }
+
+  .mood:hover .mood-face {
+    filter: none;
+  }
+
+  .cal-day[class*=' m']:not(:disabled):hover {
+    border-color: color-mix(in srgb, var(--text) 45%, transparent);
+  }
 }
 
 button:disabled {
@@ -137,6 +206,31 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+/* Sections rise in with a short cascade when a screen opens. */
+.page > * {
+  animation: rise 280ms var(--ease-out) backwards;
+}
+
+.page > :nth-child(2) {
+  animation-delay: 35ms;
+}
+.page > :nth-child(3) {
+  animation-delay: 70ms;
+}
+.page > :nth-child(4) {
+  animation-delay: 105ms;
+}
+.page > :nth-child(n + 5) {
+  animation-delay: 140ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 .page-head {
@@ -271,14 +365,15 @@ h2 {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--muted);
-  transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
 .mood-face {
   font-size: 1.7rem;
   line-height: 1.2;
   filter: grayscale(0.6);
-  transition: filter 0.12s ease, transform 0.12s ease;
+  transition:
+    transform 200ms var(--ease-out),
+    filter 150ms ease;
 }
 
 .mood[aria-checked='true'] {
@@ -290,10 +385,6 @@ h2 {
 .mood[aria-checked='true'] .mood-face {
   filter: none;
   transform: scale(1.15);
-}
-
-.mood:active {
-  transform: scale(0.96);
 }
 
 .m1 {
@@ -426,6 +517,7 @@ h2 {
 
 .habit-name {
   flex: 1;
+  transition: color 150ms ease;
 }
 
 .habits input:checked ~ .habit-name {
@@ -448,6 +540,7 @@ input:not([type='checkbox']) {
   border-radius: 12px;
   border: 1.5px solid var(--border);
   background: var(--bg);
+  transition: border-color 150ms ease;
 }
 
 textarea {
@@ -626,6 +719,16 @@ input:focus {
   height: 100%;
   border-radius: 999px;
   background: var(--accent);
+  /* Bars grow from their baseline using transform, so nothing re-lays out. */
+  transform-origin: left center;
+  transition:
+    transform 450ms var(--ease-out) 120ms,
+    opacity 200ms ease 120ms;
+
+  @starting-style {
+    transform: scaleX(0.25);
+    opacity: 0;
+  }
 }
 
 .impact-bar i.up {
@@ -772,6 +875,19 @@ input:focus {
   font-size: 0.92rem;
 }
 
+/* Messages and the erase confirmation ease in instead of popping. */
+.notice,
+.confirm {
+  transition:
+    opacity 200ms ease,
+    transform 200ms var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+
 .link-danger {
   margin-top: 16px;
   color: var(--danger);
@@ -785,8 +901,31 @@ input:focus {
   margin-top: 8px;
 }
 
+/* Reduced motion: keep the fades and colour changes that aid understanding, drop the movement. */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+  .page > * {
+    animation-name: fade;
+    animation-delay: 0ms;
+  }
+
+  .impact-bar i,
+  .meter i,
+  .notice,
+  .confirm {
+    transition: opacity 200ms ease;
+
+    @starting-style {
+      transform: none;
+    }
+  }
+
+  .mood-face {
+    transition: filter 150ms ease;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
   }
 }
