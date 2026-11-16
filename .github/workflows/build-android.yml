@@ -1,0 +1,48 @@
+name: Build Android app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build
+      - name: Create Android project
+        run: |
+          npx cap add android
+          npx --yes @capacitor/assets generate --android
+          npx cap sync android
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk Daybloom.apk
+      - name: Publish APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: Daybloom for Android (latest build)
+          body: |
+            Download **Daybloom.apk** on your Android phone and open it to install.
+            Android will ask you to allow installs from your browser the first time.
+          files: Daybloom.apk
+          make_latest: true
