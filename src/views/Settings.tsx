@@ -1,6 +1,7 @@
 import { type FormEvent, useRef, useState } from 'react'
 import { type AppState, type Theme, defaultState, isNativeApp, parseState, uid } from '../store'
 import type { Update } from '../App'
+import Icon from '../Icon'
 import { sampleState, todayKey } from '../insights'
 
 export default function Settings({ state, update }: { state: AppState; update: Update }) {
@@ -57,7 +58,7 @@ export default function Settings({ state, update }: { state: AppState; update: U
       update(() => next)
       setMessage(`Restored ${Object.keys(next.entries).length} days from the backup.`)
     } catch {
-      setMessage('That file is not a Daybloom backup, so nothing was changed.')
+      setMessage('That file is not a Daybloom backup, so nothing was changed. Choose a file saved with the backup button.')
     }
     if (fileInput.current) fileInput.current.value = ''
   }
@@ -77,7 +78,7 @@ export default function Settings({ state, update }: { state: AppState; update: U
                 {h.emoji} {h.name}
               </span>
               <button className="icon-btn" aria-label={`Remove ${h.name}`} onClick={() => update((s) => ({ ...s, habits: s.habits.filter((x) => x.id !== h.id) }))}>
-                ×
+                <Icon name="close" size={16} />
               </button>
             </li>
           ))}
@@ -99,7 +100,7 @@ export default function Settings({ state, update }: { state: AppState; update: U
             <span key={t} className="chip static">
               {t}
               <button aria-label={`Remove ${t}`} onClick={() => update((s) => ({ ...s, tags: s.tags.filter((x) => x !== t) }))}>
-                ×
+                <Icon name="close" size={14} />
               </button>
             </span>
           ))}

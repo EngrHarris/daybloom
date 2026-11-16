@@ -1,4 +1,4 @@
-import { type AppState, MOODS } from '../store'
+import type { AppState } from '../store'
 import type { Update } from '../App'
 import { type Impact, averageMood, lastDays, parseKey, sampleState, sleepImpact, streak, tagImpacts } from '../insights'
 
@@ -60,7 +60,7 @@ export default function Insights({ state, update }: { state: AppState; update: U
           <h1>Insights</h1>
         </header>
         <section className="card empty">
-          <p className="empty-art">🌱</p>
+          <img className="empty-art" src="./icon.svg" alt="" width="56" height="56" />
           <h2>Nothing to show yet</h2>
           <p className="muted">Check in for a few days and Daybloom will show which activities go with your better days.</p>
           <button className="btn" onClick={() => update(() => ({ ...sampleState(), theme: state.theme }))}>
@@ -75,23 +75,11 @@ export default function Insights({ state, update }: { state: AppState; update: U
     <>
       <header className="page-head">
         <h1>Insights</h1>
-        <p className="muted">Patterns from your own check-ins. Nothing leaves this device.</p>
+        <p className="muted">
+          {rated} {rated === 1 ? 'check-in' : 'check-ins'} so far{run > 1 ? `, ${run} days in a row` : ''}.
+          {avg ? ` Your mood has averaged ${avg.toFixed(1)} out of 5 over the last 30 days.` : ''}
+        </p>
       </header>
-
-      <section className="stats">
-        <div className="card stat">
-          <strong>{avg ? avg.toFixed(1) : '–'}</strong>
-          <span>Average mood, 30 days {avg ? MOODS[Math.round(avg) - 1].emoji : ''}</span>
-        </div>
-        <div className="card stat">
-          <strong>{run}</strong>
-          <span>Day streak</span>
-        </div>
-        <div className="card stat">
-          <strong>{rated}</strong>
-          <span>Check-ins</span>
-        </div>
-      </section>
 
       <section className="card">
         <h2>Mood, last 30 days</h2>

@@ -5,10 +5,10 @@
   --text: #2a2228;
   --muted: #6f6470;
   --border: #e8dfd6;
-  --accent: #d9542f;
+  --accent: #b83d1a;
   --accent-soft: #fde6dc;
   --on-accent: #ffffff;
-  --good: #2f8f6b;
+  --good: #23775a;
   --bad: #7a63b8;
   --danger: #c0392b;
   --m1: #8573c4;
@@ -17,7 +17,9 @@
   --m4: #f0b23e;
   --m5: #f0764a;
   --shadow: 0 1px 2px rgba(60, 40, 30, 0.06), 0 6px 20px rgba(60, 40, 30, 0.05);
-  --radius: 18px;
+  --radius: 16px;
+  /* Elevation is declared once: shadow in light, hairline border in dark. */
+  --card-border: transparent;
   /* Strong ease-out: starts fast so the UI feels like it answers immediately. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   color-scheme: light;
@@ -38,6 +40,7 @@
     --bad: #a892e6;
     --danger: #ff7b6b;
     --shadow: none;
+    --card-border: var(--border);
     color-scheme: dark;
   }
 }
@@ -56,6 +59,7 @@
   --bad: #a892e6;
   --danger: #ff7b6b;
   --shadow: none;
+  --card-border: var(--border);
   color-scheme: dark;
 }
 
@@ -65,6 +69,19 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  accent-color: var(--accent);
+  caret-color: var(--accent);
+  scrollbar-color: var(--border) transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
 }
 
 body {
@@ -147,8 +164,8 @@ button {
     color: var(--text);
   }
 
-  .mood:hover .mood-face {
-    filter: none;
+  .mood:not([aria-checked='true']):hover {
+    color: var(--text);
   }
 
   .cal-day[class*=' m']:not(:disabled):hover {
@@ -208,22 +225,9 @@ h2 {
   gap: 14px;
 }
 
-/* Sections rise in with a short cascade when a screen opens. */
-.page > * {
-  animation: rise 280ms var(--ease-out) backwards;
-}
-
-.page > :nth-child(2) {
-  animation-delay: 35ms;
-}
-.page > :nth-child(3) {
-  animation-delay: 70ms;
-}
-.page > :nth-child(4) {
-  animation-delay: 105ms;
-}
-.page > :nth-child(n + 5) {
-  animation-delay: 140ms;
+/* The screen arrives as one piece; the Insights bars are the only other authored motion. */
+.page {
+  animation: rise 240ms var(--ease-out) backwards;
 }
 
 @keyframes rise {
@@ -238,14 +242,6 @@ h2 {
   flex-direction: column;
   gap: 4px;
   margin-bottom: 6px;
-}
-
-.eyebrow {
-  color: var(--accent);
-  font-size: 0.8rem;
-  font-weight: 650;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .section-title {
@@ -333,16 +329,27 @@ h2 {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius);
   padding: 18px;
   box-shadow: var(--shadow);
 }
 
-.row-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field h2 {
+  margin: 0;
+}
+
+.field + .field {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 
 /* ---------- mood ---------- */
@@ -357,8 +364,8 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 0 8px;
+  gap: 6px;
+  padding: 12px 0 8px;
   border-radius: 14px;
   border: 1.5px solid transparent;
   background: var(--surface-2);
@@ -367,13 +374,14 @@ h2 {
   color: var(--muted);
 }
 
-.mood-face {
-  font-size: 1.7rem;
-  line-height: 1.2;
-  filter: grayscale(0.6);
+.face {
+  transition: transform 200ms var(--ease-out);
+}
+
+.face-bg {
   transition:
-    transform 200ms var(--ease-out),
-    filter 150ms ease;
+    fill 150ms ease,
+    stroke 150ms ease;
 }
 
 .mood[aria-checked='true'] {
@@ -382,9 +390,14 @@ h2 {
   background: color-mix(in srgb, var(--mc) 18%, var(--surface));
 }
 
-.mood[aria-checked='true'] .mood-face {
-  filter: none;
-  transform: scale(1.15);
+.mood[aria-checked='true'] .face {
+  color: #1c1418;
+  transform: scale(1.12);
+}
+
+.mood[aria-checked='true'] .face-bg {
+  fill: var(--mc);
+  stroke: var(--mc);
 }
 
 .m1 {
@@ -407,12 +420,12 @@ h2 {
 
 .dots {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .dot {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--surface-2);
   border: 1.5px solid var(--border);
@@ -431,17 +444,17 @@ h2 {
 
 .stepper button,
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--surface-2);
-  font-size: 1.2rem;
-  line-height: 1;
+  display: grid;
+  place-items: center;
   flex: none;
 }
 
 .stepper output {
-  min-width: 56px;
+  min-width: 68px;
   text-align: center;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
@@ -453,6 +466,11 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+/* Helper text sits with its heading, then a clear step before the controls it describes. */
+p + .chips {
+  margin-top: 12px;
 }
 
 .chip {
@@ -474,12 +492,14 @@ h2 {
 }
 
 .chip.static {
-  padding-right: 6px;
+  padding: 2px 2px 2px 14px;
 }
 
 .chip.static button {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
   color: var(--muted);
 }
@@ -587,7 +607,7 @@ input:focus {
 }
 
 .cal-day[class*=' m'] {
-  background: color-mix(in srgb, var(--mc) 75%, var(--surface));
+  background: var(--mc);
   color: #1c1418;
 }
 
@@ -623,30 +643,6 @@ input:focus {
 }
 
 /* ---------- insights ---------- */
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.stat {
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.stat strong {
-  font-size: 1.7rem;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat span {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
 
 .chart {
   display: block;
@@ -692,7 +688,7 @@ input:focus {
 .impact,
 .habit-stats li {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 44px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 44px;
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
@@ -785,7 +781,7 @@ input:focus {
 }
 
 .empty-art {
-  font-size: 2.6rem;
+  margin-bottom: 4px;
 }
 
 /* ---------- settings ---------- */
@@ -903,9 +899,8 @@ input:focus {
 
 /* Reduced motion: keep the fades and colour changes that aid understanding, drop the movement. */
 @media (prefers-reduced-motion: reduce) {
-  .page > * {
+  .page {
     animation-name: fade;
-    animation-delay: 0ms;
   }
 
   .impact-bar i,
@@ -917,10 +912,6 @@ input:focus {
     @starting-style {
       transform: none;
     }
-  }
-
-  .mood-face {
-    transition: filter 150ms ease;
   }
 }
 

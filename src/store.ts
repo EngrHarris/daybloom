@@ -24,12 +24,12 @@ export interface AppState {
   theme: Theme
 }
 
-export const MOODS: { level: Level; emoji: string; label: string }[] = [
-  { level: 1, emoji: '😞', label: 'Rough' },
-  { level: 2, emoji: '😕', label: 'Low' },
-  { level: 3, emoji: '😐', label: 'Okay' },
-  { level: 4, emoji: '🙂', label: 'Good' },
-  { level: 5, emoji: '😄', label: 'Great' },
+export const MOODS: { level: Level; label: string }[] = [
+  { level: 1, label: 'Rough' },
+  { level: 2, label: 'Low' },
+  { level: 3, label: 'Okay' },
+  { level: 4, label: 'Good' },
+  { level: 5, label: 'Great' },
 ]
 
 const KEY = 'daybloom.v1'

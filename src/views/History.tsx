@@ -3,6 +3,7 @@ import { type AppState, MOODS } from '../store'
 import type { Update } from '../App'
 import DayEditor from '../DayEditor'
 import { dateKey, parseKey, todayKey } from '../insights'
+import Icon from '../Icon'
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -29,11 +30,11 @@ export default function History({ state, update }: { state: AppState; update: Up
       <section className="card">
         <div className="cal-head">
           <button className="icon-btn" aria-label="Previous month" onClick={() => shift(-1)}>
-            ‹
+            <Icon name="prev" size={18} />
           </button>
           <strong>{month.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</strong>
           <button className="icon-btn" aria-label="Next month" disabled={isCurrentMonth} onClick={() => shift(1)}>
-            ›
+            <Icon name="next" size={18} />
           </button>
         </div>
         <div className="cal">

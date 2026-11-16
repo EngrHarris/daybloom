@@ -1,6 +1,7 @@
 import { type AppState, type Entry, type Level, MOODS, emptyEntry } from './store'
 import { streak } from './insights'
 import type { Update } from './App'
+import Icon, { MoodFace } from './Icon'
 
 const toggle = (list: string[], item: string) => (list.includes(item) ? list.filter((x) => x !== item) : [...list, item])
 
@@ -25,15 +26,15 @@ export default function DayEditor({ state, update, date }: { state: AppState; up
               className={`mood m${m.level}`}
               onClick={() => patch({ mood: entry.mood === m.level ? undefined : m.level })}
             >
-              <span className="mood-face">{m.emoji}</span>
+              <MoodFace level={m.level} />
               {m.label}
             </button>
           ))}
         </div>
       </section>
 
-      <section className="card row-card">
-        <div>
+      <section className="card">
+        <div className="field">
           <h2>Energy</h2>
           <div className="dots" role="radiogroup" aria-label="Energy">
             {([1, 2, 3, 4, 5] as Level[]).map((n) => (
@@ -48,15 +49,15 @@ export default function DayEditor({ state, update, date }: { state: AppState; up
             ))}
           </div>
         </div>
-        <div>
+        <div className="field">
           <h2>Sleep</h2>
           <div className="stepper">
             <button aria-label="Less sleep" onClick={() => stepSleep(-0.5)}>
-              −
+              <Icon name="minus" size={18} />
             </button>
-            <output>{sleep === undefined ? '–' : `${sleep} h`}</output>
+            <output>{sleep === undefined ? 'Not set' : `${sleep} h`}</output>
             <button aria-label="More sleep" onClick={() => stepSleep(0.5)}>
-              +
+              <Icon name="plus" size={18} />
             </button>
           </div>
         </div>
@@ -87,7 +88,7 @@ export default function DayEditor({ state, update, date }: { state: AppState; up
                     <input type="checkbox" checked={entry.habits.includes(h.id)} onChange={() => patch({ habits: toggle(entry.habits, h.id) })} />
                     <span className="habit-emoji">{h.emoji}</span>
                     <span className="habit-name">{h.name}</span>
-                    {run > 1 && <span className="streak">🔥 {run}</span>}
+                    {run > 1 && <span className="streak">{run}-day streak</span>}
                   </label>
                 </li>
               )

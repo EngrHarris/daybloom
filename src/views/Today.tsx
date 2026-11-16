@@ -13,9 +13,9 @@ export default function Today({ state, update }: { state: AppState; update: Upda
   return (
     <>
       <header className="page-head">
-        <p className="eyebrow">{now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
         <h1>{greeting}</h1>
         <p className="muted">
+          {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.{' '}
           {checkedIn
             ? run > 1
               ? `Checked in. That's ${run} days in a row.`
